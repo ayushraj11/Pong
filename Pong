@@ -1,0 +1,99 @@
+import simplegui
+import random
+import math
+length=1000
+width=500
+pong=20
+left=0 
+right=0
+pongw=62.5
+pongl=250
+pongr=250
+vels=[0,0]
+pos=[length/2.0,width/2.0]
+vel=[-500.0/180,-random.randrange(-250,250)/180]
+frame=simplegui.create_frame("Pong",length,width)
+def draw(canvas):
+    global vels,vel,pos,length,width,pong,left,right,pongw,pongl,pongr
+    canvas.draw_line([length/2,0],[length/2,width],5,"Blue")
+    canvas.draw_line([pong,0],[pong,width],5,"Blue")
+    canvas.draw_line([length-pong,0],[length-pong,width],5,"Blue")
+    canvas.draw_text(str(left),[length/5,width/5],20,"White")
+    canvas.draw_text(str(right),[length*4/5,width/5],20,"White")
+    canvas.draw_circle(pos,10,5,"Red","Gray")
+    canvas.draw_line([pong/2,pongl-pongw],[pong/2,pongl+pongw],pong,"White")
+    canvas.draw_line([length-(pong/2),pongr-pongw],[length-(pong/2),pongr+pongw],pong,"White")
+    pos[0]+=vel[0]
+    pos[1]+=vel[1]
+    if(((pos[0]<=pong+10)and(math.fabs(pos[1]-pongl)<=pongw))or((pos[0]>=length-pong-10)and(math.fabs(pos[1]-pongr)<=pongw))):
+        vel[0]=vel[0]*-1.1
+        vel[1]=vel[1]*1.1
+        
+    if((pos[0]<=pong+10)and(math.fabs(pos[1]-pongl)>pongw)):
+        right=right+1
+        pos=[length/2.0,width/2.0]
+        vel=[500.0/180,random.randrange(-250,250)/180]
+        vels=[0,0]
+    if((pos[0]>=length-pong-10)and(math.fabs(pos[1]-pongr)>pongw)):
+        left+=1
+        pos=[length/2.0,width/2.0]
+        vel=[-500.0/180,random.randrange(-250,250)/180]
+        vels=[0,0]
+    if(pos[1]<=10):
+        vel[1]=-1*vel[1]
+    if(pos[1]>=width-10):
+        vel[1]=-1*vel[1]
+        
+        
+        
+def refresh():
+    global vel,pos,left,right,pongl,pongr,vels
+    vel=[-500.0/180,-random.randrange(0,250)/180]
+    pos=[length/2,width/2]
+    left=0
+    right=0
+    pongl=250
+    pongr=250
+    vels=[0,0]
+
+def keydown(key):
+    global pongl,pongr
+    tl=0
+    tr=0
+    if(key==simplegui.KEY_MAP["up"]):
+        tr=-1
+        if(vels[1]>0):
+            vels[1]=0
+    if(key==simplegui.KEY_MAP["down"]):
+        tr=1
+        if(vels[1]<0):
+            vels[1]=0
+    if(key==simplegui.KEY_MAP["w"]):
+        tl=-1
+        if(vels[0]>0):
+            vels[0]=0
+    if(key==simplegui.KEY_MAP["s"]):
+        tl=1
+        if(vels[0]<0):
+            vels[0]=0
+    vels[0]+=tl*1
+    vels[1]+=tr*1
+    def tic():
+        global pongl,pongr
+        if(((pongl+pongw+vels[0])<=width)and((pongl-pongw+vels[0])>=0)):
+            pongl+=vels[0]
+        if(((pongr+pongw+vels[1])<=width)and((pongr-pongw+vels[1])>=0)):
+            pongr+=vels[1]
+    timer=simplegui.create_timer(5,tic)
+    timer.start()
+        
+
+    
+frame.add_button("Refresh",refresh,100)        
+
+frame.set_keydown_handler(keydown)
+frame.set_draw_handler(draw)
+frame.start()
+    
+    
+    
